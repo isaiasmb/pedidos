@@ -9,6 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -42,6 +44,7 @@ public class Item {
 		this.product = product;
 	}
 
+	@Min(0)
 	public Integer getAmount() {
 		return amount;
 	}
@@ -62,6 +65,8 @@ public class Item {
 	}
 
 	@Column(name = "unit_price")
+	@Min(0)
+	@Digits(integer = 18, fraction = 2)
 	public double getUnitPrice() {
 		return unitPrice;
 	}

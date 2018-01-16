@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "orders")
@@ -32,6 +33,7 @@ public class Order {
 
 	@OneToOne
 	@JoinColumn(name = "id_client")
+	@NotNull
 	public Client getClient() {
 		return client;
 	}
