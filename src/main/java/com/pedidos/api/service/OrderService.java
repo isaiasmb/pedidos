@@ -2,6 +2,7 @@ package com.pedidos.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pedidos.api.model.Item;
 import com.pedidos.api.model.Order;
@@ -17,14 +18,16 @@ public class OrderService {
 	@Autowired
 	private ItemRepository itemRepository;
 	
+	@Transactional(rollbackFor = Exception.class)
 	public Order save(Order order) {
 		Order newOrder = orderRepository.save(order);
 		
-		for (Item item : order.getItems()) {
-			item.setOrder(order);
-			itemRepository.save(item);
+		if (newOrder != null && newOrder.getId() != null) {
+			for (Item item : order.getItems()) {
+				item.setOrder(order);
+				itemRepository.save(item);
+			}
 		}
 		return newOrder;
 	}
-	
 }
