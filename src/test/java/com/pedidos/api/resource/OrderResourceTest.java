@@ -1,6 +1,7 @@
 package com.pedidos.api.resource;
 
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,6 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.pedidos.api.PedidosApiApplication;
+import com.pedidos.api.builder.ItemBuilder;
+import com.pedidos.api.builder.OrderBuilder;
+import com.pedidos.api.builder.ProductBuilder;
 import com.pedidos.api.model.Client;
 import com.pedidos.api.model.Item;
 import com.pedidos.api.model.Order;
@@ -66,6 +70,7 @@ public class OrderResourceTest {
 	private Product product;
 	private Client client;
 	private Order order;
+	private Item item;
 		
 	private MockMvc mvc;
 	
@@ -86,43 +91,32 @@ public class OrderResourceTest {
 		productRepository.deleteAll();
 		clientRepository.deleteAll();
 		
-		product = new Product();
-		product.setUnitPrice(550000);
-		product.setName("Millenium Falcon");
-		productRepository.save(product);
-		
 		client = new Client();
 		client.setName("Darth Vader");
 		clientRepository.save(client);
 		
-		Item item = new Item();
-		item.setAmount(2);
-		item.setUnitPrice(50000);
-		item.setProduct(product);
+		product = ProductBuilder.oneProduct().now();
 		
-		order = new Order();
-		order.setClient(client);
-		order.setItems(Arrays.asList(item));
+		item = ItemBuilder.oneItem(product).now();		
+		order = OrderBuilder.oneOrder(client, Arrays.asList(item)).now();
 		orderRepository.save(order);
 		
 		mvc = MockMvcBuilders.standaloneSetup(orderResource).build();
 	}
 	
 	@Test
-	public void shouldCreateOrder() throws Exception {
-		Item item = new Item();
-		item.setAmount(2);
-		item.setUnitPrice(50000);
-		item.setProduct(product);
-		
-		Order newOrder = new Order();
-		newOrder.setClient(client);
-		newOrder.setItems(Arrays.asList(item));
+	public void shouldCreateOrder() throws Exception {		
+		Order newOrder = OrderBuilder.oneOrder(client, Arrays.asList(item)).now();
 		
 		mvc.perform(post(BASE_PATH)
 				.content(json(newOrder))
 				.contentType(contentType))
 		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void shouldNotCreateOrderWhenThrowMultipleException() {
+		
 	}
 	
 	@Test
@@ -137,6 +131,13 @@ public class OrderResourceTest {
 		mvc.perform(get(BASE_PATH)
 				.contentType(contentType))
 		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void shouldDeleteOrder() throws Exception {
+		mvc.perform(delete(BASE_PATH + "/" + order.getId())
+				.contentType(contentType))
+		.andExpect(status().isNoContent());
 	}
 	
 	protected String json(Object o) throws IOException {
