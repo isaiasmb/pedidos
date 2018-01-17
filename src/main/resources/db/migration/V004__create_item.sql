@@ -4,6 +4,7 @@ CREATE TABLE items (
 	id_order BIGINT(20),
 	amount INT(10),
 	unit_price DOUBLE,
+	profitability INT(2),
 	KEY fk_order_item (id_order),
 	CONSTRAINT fk_order_item FOREIGN KEY (id_order) REFERENCES orders(id),
     KEY fk_product_item (id_product),

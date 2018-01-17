@@ -24,6 +24,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.pedidos.api.exception.BadProfitabilityException;
+import com.pedidos.api.exception.InvalidMultipleException;
+import com.pedidos.api.exception.ProductNotFound;
+
 @ControllerAdvice
 public class OrdersExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -31,9 +35,8 @@ public class OrdersExceptionHandler extends ResponseEntityExceptionHandler {
 	private MessageSource messageSource;
 
 	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-			HttpHeaders headers, HttpStatus status, WebRequest request) {
-		
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+
 		String userMessage = messageSource.getMessage("message.invalid", null, LocaleContextHolder.getLocale());
 		String devMessage = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
 		List<Error> errors = Arrays.asList(new Error(userMessage, devMessage));
@@ -41,27 +44,34 @@ public class OrdersExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-			HttpHeaders headers, HttpStatus status, WebRequest request) {
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
 		List<Error> errors = createListOfErrors(ex.getBindingResult());
 		return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
 	}
-	
-	@ExceptionHandler({EmptyResultDataAccessException.class})
+
+	@ExceptionHandler({ EmptyResultDataAccessException.class })
 	public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request) {
 		String userMessage = messageSource.getMessage("resource.not_found", null, LocaleContextHolder.getLocale());
 		String devMessage = ex.toString();
 		List<Error> errors = Arrays.asList(new Error(userMessage, devMessage));
 		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 	}
-	
-	@ExceptionHandler({ConstraintViolationException.class})
+
+	@ExceptionHandler({ ConstraintViolationException.class })
 	public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
 		List<Error> errors = createListOfViolates(ex.getConstraintViolations());
 		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}
-	
+
+	@ExceptionHandler({ BadProfitabilityException.class, InvalidMultipleException.class, ProductNotFound.class })
+	public ResponseEntity<Object> handleItemException(Exception ex,  WebRequest request) {
+		String userMessage = ex.getMessage();
+		String devMessage = ex.toString();
+		List<Error> errors = Arrays.asList(new Error(userMessage, devMessage));
+		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+	}
+
 	private List<Error> createListOfViolates(Set<ConstraintViolation<?>> violates) {
 		List<Error> errors = new ArrayList<>();
 		for (ConstraintViolation violate : violates) {

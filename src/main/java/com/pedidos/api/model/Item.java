@@ -23,6 +23,7 @@ public class Item {
 	private Integer amount;
 	private Order order;
 	private double unitPrice;
+	private Profitability profitability;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,6 +74,14 @@ public class Item {
 
 	public void setUnitPrice(double unitPrice) {
 		this.unitPrice = unitPrice;
+	}
+
+	public Profitability getProfitability() {
+		return profitability;
+	}
+
+	public void setProfitability(Profitability profitability) {
+		this.profitability = profitability;
 	}
 
 	@Override

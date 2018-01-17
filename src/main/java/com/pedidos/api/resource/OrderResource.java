@@ -41,8 +41,13 @@ public class OrderResource {
 		return orderRepository.findAll();
 	}
 	
+	@GetMapping("/{id}")
+	public Order getById(@PathVariable Long id) {
+		return orderRepository.findOne(id);
+	}
+	
 	@PostMapping
-	public ResponseEntity<Order> create(@Valid @RequestBody Order order, HttpServletResponse response) {
+	public ResponseEntity<Order> create(@Valid @RequestBody Order order, HttpServletResponse response) throws Exception {
 		Order createdOrder = orderService.save(order);
 		publisher.publishEvent(new CreatedResourceEvent(this, response, createdOrder.getId()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
