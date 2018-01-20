@@ -21,6 +21,11 @@ public class ProductBuilder {
 		product.setUnitPrice(550000);		
 	}
 	
+	public ProductBuilder withUnitPrice(Double unitPrice) {
+		product.setUnitPrice(unitPrice);
+		return this;
+	}
+	
 	public Product now() {
 		return product;
 	}

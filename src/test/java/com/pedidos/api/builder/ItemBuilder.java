@@ -24,6 +24,16 @@ public class ItemBuilder {
 		item.setProduct(product);
 	}
 
+	public ItemBuilder withAmount(Integer amount) {
+		item.setAmount(amount);
+		return this;
+	}
+
+	public ItemBuilder withUnitPrice(Double unitPrice) {
+		item.setUnitPrice(unitPrice);
+		return this;
+	}
+
 	public Item now() {
 		return item;
 	}

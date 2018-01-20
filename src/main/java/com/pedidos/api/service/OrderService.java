@@ -1,6 +1,8 @@
 package com.pedidos.api.service;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,5 +30,23 @@ public class OrderService {
 			}
 		}
 		return newOrder;
+	}
+	
+	public Order update(Long id, Order order) throws Exception {
+		Order savedOrder = orderRepository.findOne(id);
+		if (savedOrder == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		
+		BeanUtils.copyProperties(order, savedOrder, "id");
+		
+		if (savedOrder != null && savedOrder.getId() != null) {
+			for (Item item : savedOrder.getItems()) {
+				item.setOrder(savedOrder);
+				itemService.save(item);
+			}
+		}	
+		
+		return orderRepository.save(savedOrder);		
 	}
 }
