@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pedidos.api.model.Item;
 import com.pedidos.api.model.Order;
+import com.pedidos.api.repository.ItemRepository;
 import com.pedidos.api.repository.OrderRepository;
 
 @Service
@@ -18,6 +19,9 @@ public class OrderService {
 
 	@Autowired
 	private ItemService itemService;
+	
+	@Autowired
+	private ItemRepository ItemRepository;
 	
 	@Transactional(rollbackFor = Exception.class)
 	public Order save(Order order) throws Exception {
@@ -38,9 +42,17 @@ public class OrderService {
 			throw new EmptyResultDataAccessException(1);
 		}
 		
-		BeanUtils.copyProperties(order, savedOrder, "id");
-		
+
 		if (savedOrder != null && savedOrder.getId() != null) {
+			
+			for (Item item : savedOrder.getItems()) {
+				if (!order.getItems().contains(item)) {
+					ItemRepository.delete(item);
+				}
+				
+			}		
+			
+			BeanUtils.copyProperties(order, savedOrder, "id");
 			for (Item item : savedOrder.getItems()) {
 				item.setOrder(savedOrder);
 				itemService.save(item);

@@ -2,18 +2,12 @@ package com.pedidos.api.model;
 
 public enum Profitability {
 
-	GREAT(0, "Ótimo"), GOOD(1, "Bom"), BAD(2, "Ruim");
+	GREAT("Ótima"), GOOD("Boa"), BAD("Ruim");
 
-	private Integer id;
 	private String name;
 
-	private Profitability(Integer id, String name) {
-		this.id = id;
+	private Profitability(String name) {
 		this.name = name;
-	}
-
-	public Integer getId() {
-		return id;
 	}
 
 	public String getName() {
